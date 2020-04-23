@@ -1,12 +1,14 @@
 /*
+Copyright (C): 2010-2019, Shenzhen Yahboom Tech
+modified from liusen
 load dependency
-"HuaRobot_M1": "file:../pxt-HuaRobot_M1"
+"mbit": "file:../pxt-mbit"
 */
 
 
 
 //% color="#C814B8" weight=25 icon="\uf1d4"
-namespace HuaRobot_M1_显示类 {
+namespace mbit_显示类 {
     
     export enum enColor {
 
@@ -36,7 +38,7 @@ namespace HuaRobot_M1_显示类 {
         ON =1
     }
 
-    //% blockId=M1_LED1 block="LED1|pin %pin|value %value"
+    //% blockId=mbit_LED1 block="LED1|pin %pin|value %value"
     //% weight=5
     //% blockGap=8
     //% color="#C814B8"
@@ -47,7 +49,7 @@ namespace HuaRobot_M1_显示类 {
 
     }
 
-    //% blockId=M1_LED2 block="LED2|pin %pin|value %value"
+    //% blockId=mbit_LED2 block="LED2|pin %pin|value %value"
     //% weight=4
     //% blockGap=8
     //% color="#C814B8"
@@ -59,7 +61,7 @@ namespace HuaRobot_M1_显示类 {
 
     }
 
-    //% blockId=M1_BreathLED block="BreathLED|pin %pin"
+    //% blockId=mbit_BreathLED block="BreathLED|pin %pin"
     //% weight=3
     //% blockGap=8
     //% color="#C814B8"
@@ -80,7 +82,7 @@ namespace HuaRobot_M1_显示类 {
 
     }
 
-    //% blockId=M1_RGB block="RGB|pin1 %pin1|pin2 %pin2|pin3 %pin3|value1 %value1|value2 %value2|value3 %value3"
+    //% blockId=mbit_RGB block="RGB|pin1 %pin1|pin2 %pin2|pin3 %pin3|value1 %value1|value2 %value2|value3 %value3"
     //% weight=2
     //% blockGap=8
     //% color="#C814B8"
@@ -93,7 +95,7 @@ namespace HuaRobot_M1_显示类 {
         pins.analogWritePin(pin3, value3 * 1024 / 256);
 
     }
-    //% blockId=M1_RGB2 block="RGB|pin1 %pin1|pin2 %pin2|pin3 %pin3|value %value"
+    //% blockId=mbit_RGB2 block="RGB|pin1 %pin1|pin2 %pin2|pin3 %pin3|value %value"
     //% weight=1
     //% blockGap=8
     //% color="#C814B8"
@@ -159,7 +161,7 @@ namespace HuaRobot_M1_显示类 {
  ****************************************************************************************************************************************/
 
 //% color="#87CEEB" weight=24 icon="\uf1b6"
-namespace HuaRobot_M1_传感器类 {
+namespace mbit_传感器类 {
 
     export enum enVoice {
         //% blockId="Voice" block="有声音"
@@ -176,7 +178,7 @@ namespace HuaRobot_M1_传感器类 {
     }
     
 
-    //% blockId=M1_Voice_Sensor block="Voice_Sensor|pin %pin|value %value"
+    //% blockId=mbit_Voice_Sensor block="Voice_Sensor|pin %pin|value %value"
     //% weight=100
     //% blockGap=10
     //% color="#87CEEB"
@@ -201,7 +203,7 @@ namespace HuaRobot_M1_传感器类 {
             control.waitMicros(13);
         }
     }
-    //% blockId=M1_IR_Sensor block="IR_Sensor|pin %pin| |%value|障碍物"
+    //% blockId=mbit_IR_Sensor block="IR_Sensor|pin %pin| |%value|障碍物"
     //% weight=100
     //% blockGap=10
     //% color="#87CEEB"
@@ -219,7 +221,7 @@ namespace HuaRobot_M1_传感器类 {
 
     }
 
-    //% blockId=M1_IR_Send block="IR_Send|pin %pin"
+    //% blockId=mbit_IR_Send block="IR_Send|pin %pin"
     //% weight=100
     //% blockGap=10
     //% color="#87CEEB"
@@ -231,7 +233,7 @@ namespace HuaRobot_M1_传感器类 {
 
     }
    
-    //% blockId=M1_ultrasonic block="Ultrasonic|Trig %Trig|Echo %Echo"
+    //% blockId=mbit_ultrasonic block="Ultrasonic|Trig %Trig|Echo %Echo"
     //% color="#87CEEB"
     //% weight=100
     //% blockGap=10
@@ -239,16 +241,22 @@ namespace HuaRobot_M1_传感器类 {
     export function Ultrasonic(Trig: DigitalPin, Echo: DigitalPin): number {
 
         // send pulse
-        pins.setPull(Trig, PinPullMode.PullNone);
-        pins.digitalWritePin(Trig, 0);
-        control.waitMicros(2);
-        pins.digitalWritePin(Trig, 1);
-        control.waitMicros(10);
-        pins.digitalWritePin(Trig, 0);
 
-        // read pulse
-        let d = pins.pulseIn(Echo, PulseValue.High, 23200);
-        return d / 58;
+        let list:Array<number> = [0, 0, 0, 0, 0];
+        for (let i = 0; i < 5; i++) {
+            pins.setPull(Trig, PinPullMode.PullNone);
+            pins.digitalWritePin(Trig, 0);
+            control.waitMicros(2);
+            pins.digitalWritePin(Trig, 1);
+            control.waitMicros(15);
+            pins.digitalWritePin(Trig, 0);
+    
+            let d = pins.pulseIn(Echo, PulseValue.High, 43200);
+            list[i] = Math.floor(d / 40)
+        }
+        list.sort();
+        let length = (list[1] + list[2] + list[3])/3;
+        return  Math.floor(length);
     }
 }
 
@@ -257,7 +265,7 @@ namespace HuaRobot_M1_传感器类 {
  ****************************************************************************************************************************************/
 
 //% color="#808080" weight=23 icon="\uf11c"
-namespace HuaRobot_M1_输入类 {
+namespace mbit_输入类 {
 
     export enum enRocker {
         //% blockId="Nostate" block="无"
@@ -287,7 +295,7 @@ namespace HuaRobot_M1_输入类 {
         Realse = 1
     }
 
-    //% blockId=M1_TouchPad block="TouchPad|pin %pin|value %value"
+    //% blockId=mbit_TouchPad block="TouchPad|pin %pin|value %value"
     //% weight=100
     //% blockGap=10
     //% color="#808080"
@@ -303,11 +311,11 @@ namespace HuaRobot_M1_输入类 {
         }
 
     }
-    //% blockId=M1_Rocker block="Rocker|VRX %pin1|VRY %pin2|SW %pin3|value %value"
+    
+    //% blockId=mbit_Rocker block="Rocker|VRX %pin1|VRY %pin2|SW %pin3|value %value"
     //% weight=100
     //% blockGap=10
     //% color="#808080"
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=6
     export function Rocker(pin1: AnalogPin, pin2: AnalogPin, pin3: DigitalPin, value: enRocker): boolean {
 
         pins.setPull(pin3, PinPullMode.PullUp);
@@ -347,7 +355,7 @@ namespace HuaRobot_M1_输入类 {
 
     }
 
-    //% blockId=M1_Button block="Button|pin %pin|value %value"
+    //% blockId=mbit_Button block="Button|pin %pin|value %value"
     //% weight=100
     //% blockGap=10
     //% color="#808080"
@@ -370,7 +378,7 @@ namespace HuaRobot_M1_输入类 {
  ****************************************************************************************************************************************/
 
 //% color="#D2691E" weight=22 icon="\uf001"
-namespace HuaRobot_M1_音乐类 {
+namespace mbit_音乐类 {
     export enum enBuzzer {
 
         //% blockId="NoBeep" block="不响"
@@ -379,7 +387,7 @@ namespace HuaRobot_M1_音乐类 {
         Beep
     }
 
-    //% blockId=M1_Buzzer block="Buzzer|pin %pin|value %value"
+    //% blockId=mbit_Buzzer block="Buzzer|pin %pin|value %value"
     //% weight=100
     //% blockGap=10 
     //% color="#D2691E"
@@ -399,9 +407,9 @@ namespace HuaRobot_M1_音乐类 {
  ****************************************************************************************************************************************/
 
 //% color="#0000CD" weight=21 icon="\uf185"
-namespace HuaRobot_M1_电机类 {
+namespace mbit_电机类 {
 
-    //% blockId=M1_Fan block="Fan|pin %pin|speed %value"
+    //% blockId=mbit_Fan block="Fan|pin %pin|speed %value"
     //% weight=100
     //% blockGap=10
     //% color="#0000CD"
@@ -413,7 +421,7 @@ namespace HuaRobot_M1_电机类 {
 
     }
 
-    //% blockId=M1_Servo block="Servo|pin %pin|value %value"
+    //% blockId=mbit_Servo block="Servo|pin %pin|value %value"
     //% weight=100
     //% blockGap=10
     //% color="#0000CD"
@@ -428,7 +436,7 @@ namespace HuaRobot_M1_电机类 {
 }
 
 //% color="#006400" weight=20 icon="\uf1b9"
-namespace HuaRobot_M1_小车类 {
+namespace mbit_小车类 {
 
     const PCA9685_ADD = 0x41
     const MODE1 = 0x00
@@ -523,12 +531,9 @@ namespace HuaRobot_M1_小车类 {
     
     export enum enServo {
         
-        S1 = 3,
-        S2 = 4,
-        S3 = 5,
-		S4 = 9,
-		S5 = 10,
-		S6 = 11
+        S1 = 1,
+        S2,
+        S3
     }
     export enum CarState {
         //% blockId="Car_Run" block="前行"
@@ -604,20 +609,21 @@ namespace HuaRobot_M1_小车类 {
     }
 
 
-    function Car_run(speed: number) {
+    function Car_run(speed1: number, speed2: number) {
 
-        speed = speed * 16; // map 350 to 4096
-        if (speed >= 4096) {
-            speed = 4095
+        speed1 = speed1 * 16; // map 350 to 4096
+        speed2 = speed2 * 16;
+        if (speed1 >= 4096) {
+            speed1 = 4095
         }
-        if (speed <= 350) {
-            speed = 350
+        if (speed2 >= 4096) {
+            speed2 = 4095
         }
 
-        setPwm(12, 0, speed);
+        setPwm(12, 0, speed1);
         setPwm(13, 0, 0);
 
-        setPwm(15, 0, speed);
+        setPwm(15, 0, speed2);
         setPwm(14, 0, 0);
         //pins.digitalWritePin(DigitalPin.P16, 1);
        // pins.analogWritePin(AnalogPin.P1, 1023-speed); //速度控制
@@ -626,21 +632,21 @@ namespace HuaRobot_M1_小车类 {
        // pins.digitalWritePin(DigitalPin.P8, 0);
     }
 
-    function Car_back(speed: number) {
+    function Car_back(speed1: number, speed2: number) {
 
-        speed = speed * 16; // map 350 to 4096
-        if (speed >= 4096) {
-            speed = 4095
+        speed1 = speed1 * 16; // map 350 to 4096
+        speed2 = speed2 * 16;
+        if (speed1 >= 4096) {
+            speed1 = 4095
         }
-        if (speed <= 350 && speed != 0) {
-            speed = 350
+        if (speed2 >= 4096) {
+            speed2 = 4095
         }
-
         setPwm(12, 0, 0);
-        setPwm(13, 0, speed);
+        setPwm(13, 0, speed1);
 
         setPwm(15, 0, 0);
-        setPwm(14, 0, speed);
+        setPwm(14, 0, speed2);
 
         //pins.digitalWritePin(DigitalPin.P16, 0);
         //pins.analogWritePin(AnalogPin.P1, speed); //速度控制
@@ -649,19 +655,21 @@ namespace HuaRobot_M1_小车类 {
         //pins.digitalWritePin(DigitalPin.P8, 1);
     }
 
-    function Car_left(speed: number) {
+    function Car_left(speed1: number, speed2: number) {
 
-        speed = speed * 16; // map 350 to 4096
-        if (speed >= 4096) {
-            speed = 4095
+        speed1 = speed1 * 16; // map 350 to 4096
+        speed2 = speed2 * 16;
+        if (speed1 >= 4096) {
+            speed1 = 4095
         }
-        if (speed <= 350 && speed != 0) {
-            speed = 350
+        if (speed2 >= 4096) {
+            speed2 = 4095
         }
-        setPwm(12, 0, 0);
+        
+        setPwm(12, 0, speed1);
         setPwm(13, 0, 0);
 
-        setPwm(15, 0, speed);
+        setPwm(15, 0, speed2);
         setPwm(14, 0, 0);
 
         //pins.analogWritePin(AnalogPin.P0, speed);
@@ -671,19 +679,21 @@ namespace HuaRobot_M1_小车类 {
         //pins.digitalWritePin(DigitalPin.P1, 0);
     }
 
-    function Car_right(speed: number) {
+    function Car_right(speed1: number, speed2: number) {
 
-        speed = speed * 16; // map 350 to 4096
-        if (speed >= 4096) {
-            speed = 4095
+        speed1 = speed1 * 16; // map 350 to 4096
+        speed2 = speed2 * 16;
+        if (speed1 >= 4096) {
+            speed1 = 4095
         }
-        if (speed <= 350 && speed != 0) {
-            speed = 350
+        if (speed2 >= 4096) {
+            speed2 = 4095
         }
-        setPwm(12, 0, speed);
+        
+        setPwm(12, 0, speed1);
         setPwm(13, 0, 0);
 
-        setPwm(15, 0, 0);
+        setPwm(15, 0, speed2);
         setPwm(14, 0, 0);
         //pins.digitalWritePin(DigitalPin.P0, 0);
         //pins.digitalWritePin(DigitalPin.P8, 0);
@@ -705,19 +715,21 @@ namespace HuaRobot_M1_小车类 {
         //pins.digitalWritePin(DigitalPin.P1, 0);
     }
 
-    function Car_spinleft(speed: number) {
+    function Car_spinleft(speed1: number, speed2: number) {
 
-        speed = speed * 16; // map 350 to 4096
-        if (speed >= 4096) {
-            speed = 4095
+        speed1 = speed1 * 16; // map 350 to 4096
+        speed2 = speed2 * 16;
+        if (speed1 >= 4096) {
+            speed1 = 4095
         }
-        if (speed <= 350 && speed != 0) {
-            speed = 350
-        }
+        if (speed2 >= 4096) {
+            speed2 = 4095
+        }        
+        
         setPwm(12, 0, 0);
-        setPwm(13, 0, speed);
+        setPwm(13, 0, speed1);
 
-        setPwm(15, 0, speed);
+        setPwm(15, 0, speed2);
         setPwm(14, 0, 0);
 
         //pins.analogWritePin(AnalogPin.P0, speed);
@@ -727,20 +739,21 @@ namespace HuaRobot_M1_小车类 {
         //pins.analogWritePin(AnalogPin.P1, speed);
     } 
 
-    function Car_spinright(speed: number) {
+    function Car_spinright(speed1: number, speed2: number) {
 
-        speed = speed * 16; // map 350 to 4096
-        if (speed >= 4096) {
-            speed = 4095
+        speed1 = speed1 * 16; // map 350 to 4096
+        speed2 = speed2 * 16;
+        if (speed1 >= 4096) {
+            speed1 = 4095
         }
-        if (speed <= 350 && speed != 0) {
-            speed = 350
-        }
-        setPwm(12, 0, speed);
+        if (speed2 >= 4096) {
+            speed2 = 4095
+        }      
+        setPwm(12, 0, speed1);
         setPwm(13, 0, 0);
 
         setPwm(15, 0, 0);
-        setPwm(14, 0, speed);
+        setPwm(14, 0, speed2);
         //pins.analogWritePin(AnalogPin.P0, 1023-speed);
         //pins.digitalWritePin(DigitalPin.P8, 1);
 
@@ -753,7 +766,7 @@ namespace HuaRobot_M1_小车类 {
      * *****************************************************************
      * @param index
      */
-    //% blockId=M1_RGB_Car_Big2 block="RGB_Car_Big2|value %value"
+    //% blockId=mbit_RGB_Car_Big2 block="RGB_Car_Big2|value %value"
     //% weight=101
     //% blockGap=10
     //% color="#C814B8"
@@ -811,7 +824,7 @@ namespace HuaRobot_M1_小车类 {
             }
         }
     }
-    //% blockId=M1_RGB_Car_Big block="RGB_Car_Big|value1 %value1|value2 %value2|value3 %value3"
+    //% blockId=mbit_RGB_Car_Big block="RGB_Car_Big|value1 %value1|value2 %value2|value3 %value3"
     //% weight=100
     //% blockGap=10
     //% color="#C814B8"
@@ -836,7 +849,7 @@ namespace HuaRobot_M1_小车类 {
 
     }
 
-    //% blockId=M1_RGB_Car_Program block="RGB_Car_Program"
+    //% blockId=mbit_RGB_Car_Program block="RGB_Car_Program"
     //% weight=99
     //% blockGap=10
     //% color="#C814B8"
@@ -850,27 +863,32 @@ namespace HuaRobot_M1_小车类 {
     }
 
 
-	//% blockId=M1_ultrasonic_car block="ultrasonic return distance(cm)"
+	//% blockId=mbit_ultrasonic_car block="ultrasonic return distance(cm)"
     //% color="#006400"
     //% weight=98
     //% blockGap=10
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
     export function Ultrasonic_Car(): number {
 
-        // send pulse
-        pins.setPull(DigitalPin.P14, PinPullMode.PullNone);
-        pins.digitalWritePin(DigitalPin.P14, 0);
-        control.waitMicros(2);
-        pins.digitalWritePin(DigitalPin.P14, 1);
-        control.waitMicros(10);
-        pins.digitalWritePin(DigitalPin.P14, 0);
-
-        // read pulse
-        let d = pins.pulseIn(DigitalPin.P15, PulseValue.High, 43200);
-        return d / 58;
+        // send pulse   
+        let list:Array<number> = [0, 0, 0, 0, 0];
+        for (let i = 0; i < 5; i++) {
+            pins.setPull(DigitalPin.P14, PinPullMode.PullNone);
+		        pins.digitalWritePin(DigitalPin.P14, 0);
+		        control.waitMicros(2);
+		        pins.digitalWritePin(DigitalPin.P14, 1);
+		        control.waitMicros(15);
+		        pins.digitalWritePin(DigitalPin.P14, 0);
+		
+		        let d = pins.pulseIn(DigitalPin.P15, PulseValue.High, 43200);
+		        list[i] = Math.floor(d / 40)
+        }
+        list.sort();
+        let length = (list[1] + list[2] + list[3])/3;
+        return  Math.floor(length);
     }
 
-    //% blockId=M1_Music_Car block="Music_Car|%index"
+    //% blockId=mbit_Music_Car block="Music_Car|%index"
     //% weight=97
     //% blockGap=10
     //% color="#006400"
@@ -899,7 +917,7 @@ namespace HuaRobot_M1_小车类 {
             case enMusic.power_down: music.beginMelody(music.builtInMelody(Melodies.PowerDown), MelodyOptions.Once); break;
         }
     }
-    //% blockId=M1_Servo_Car block="Servo_Car|num %num|value %value"
+    //% blockId=mbit_Servo_Car block="Servo_Car|num %num|value %value"
     //% weight=96
     //% blockGap=10
     //% color="#006400"
@@ -910,11 +928,11 @@ namespace HuaRobot_M1_小车类 {
         // 50hz: 20,000 us
         let us = (value * 1800 / 180 + 600); // 0.6 ~ 2.4
         let pwm = us * 4096 / 20000;
-        setPwm(num , 0, pwm);
+        setPwm(num + 2, 0, pwm);
 
     }
 
-    //% blockId=M1_Avoid_Sensor block="Avoid_Sensor|value %value"
+    //% blockId=mbit_Avoid_Sensor block="Avoid_Sensor|value %value"
     //% weight=95
     //% blockGap=10
     //% color="#006400"
@@ -954,7 +972,7 @@ namespace HuaRobot_M1_小车类 {
         return temp;
 
     }
-    //% blockId=M1_Line_Sensor block="Line_Sensor|direct %direct|value %value"
+    //% blockId=mbit_Line_Sensor block="Line_Sensor|direct %direct|value %value"
     //% weight=94
     //% blockGap=10
     //% color="#006400"
@@ -999,23 +1017,23 @@ namespace HuaRobot_M1_小车类 {
         return temp;
 
     }
-    //% blockId=M1_CarCtrl block="CarCtrl|%index"
+    //% blockId=mbit_CarCtrl block="CarCtrl|%index"
     //% weight=93
     //% blockGap=10
     //% color="#006400"
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=10
     export function CarCtrl(index: CarState): void {
         switch (index) {
-            case CarState.Car_Run: Car_run(255); break;
-            case CarState.Car_Back: Car_back(255); break;
-            case CarState.Car_Left: Car_left(255); break;
-            case CarState.Car_Right: Car_right(255); break;
+            case CarState.Car_Run: Car_run(255, 255); break;
+            case CarState.Car_Back: Car_back(255, 255); break;
+            case CarState.Car_Left: Car_left(0, 255); break;
+            case CarState.Car_Right: Car_right(255, 0); break;
             case CarState.Car_Stop: Car_stop(); break;
-            case CarState.Car_SpinLeft: Car_spinleft(255); break;
-            case CarState.Car_SpinRight: Car_spinright(255); break;
+            case CarState.Car_SpinLeft: Car_spinleft(255, 255); break;
+            case CarState.Car_SpinRight: Car_spinright(255, 255); break;
         }
     }
-    //% blockId=M1_CarCtrlSpeed block="CarCtrlSpeed|%index|speed %speed"
+    //% blockId=mbit_CarCtrlSpeed block="CarCtrlSpeed|%index|speed %speed"
     //% weight=92
     //% blockGap=10
     //% speed.min=0 speed.max=255
@@ -1023,13 +1041,30 @@ namespace HuaRobot_M1_小车类 {
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=10
     export function CarCtrlSpeed(index: CarState, speed: number): void {
         switch (index) {
-            case CarState.Car_Run: Car_run(speed); break;
-            case CarState.Car_Back: Car_back(speed); break;
-            case CarState.Car_Left: Car_left(speed); break;
-            case CarState.Car_Right: Car_right(speed); break;
+            case CarState.Car_Run: Car_run(speed, speed); break;
+            case CarState.Car_Back: Car_back(speed, speed); break;
+            case CarState.Car_Left: Car_left(0, speed); break;
+            case CarState.Car_Right: Car_right(speed, 0); break;
             case CarState.Car_Stop: Car_stop(); break;
-            case CarState.Car_SpinLeft: Car_spinleft(speed); break;
-            case CarState.Car_SpinRight: Car_spinright(speed); break;
+            case CarState.Car_SpinLeft: Car_spinleft(speed, speed); break;
+            case CarState.Car_SpinRight: Car_spinright(speed, speed); break;
+        }
+    }
+    //% blockId=mbit_CarCtrlSpeed2 block="CarCtrlSpeed2|%index|speed1 %speed1|speed2 %speed2"
+    //% weight=91
+    //% blockGap=10
+    //% speed1.min=0 speed1.max=255 speed2.min=0 speed2.max=255
+    //% color="#006400"
+    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=10
+    export function CarCtrlSpeed2(index: CarState, speed1: number, speed2: number): void {
+        switch (index) {
+            case CarState.Car_Run: Car_run(speed1, speed2); break;
+            case CarState.Car_Back: Car_back(speed1, speed2); break;
+            case CarState.Car_Left: Car_left(0, speed2); break;
+            case CarState.Car_Right: Car_right(speed1, 0); break;
+            case CarState.Car_Stop: Car_stop(); break;
+            case CarState.Car_SpinLeft: Car_spinleft(speed1, speed2); break;
+            case CarState.Car_SpinRight: Car_spinright(speed1, speed2); break;
         }
     }
 }
